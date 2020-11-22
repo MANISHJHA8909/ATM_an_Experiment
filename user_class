@@ -1,0 +1,102 @@
+import java.util.ArrayList;
+import java.security.*;
+public class User 
+{
+	 
+	private String firstName;
+	private String lastName;
+	private String uuid;
+	//md5 hash of the user's pin number.
+	private byte pinHash[];
+	//list of accounts of the user.
+	private ArrayList<Account> accounts;
+	
+	public User(String firstName, String lastName, String pin, Bank theBank )
+	{
+		// set user's name
+		this.firstName = firstName;
+		this.lastName = lastName;
+		
+		//MD5 algorithm is used for hashing. store pin in md5 
+		//hash for security
+		
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			this.pinHash = md.digest(pin.getBytes());
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			System.out.print("Error,    caught NosuchAlgoException");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+		//get a new, unique universal ID for the user
+		this.uuid = theBank.getNewUserUUID();
+		
+		//create empty list of accounts
+		this.accounts = new ArrayList<Account>();
+		
+		//print log message
+		System.out.println("New user " + firstName + " " +lastName + " with id " + this.uuid + " created.");
+		
+	}
+
+	public void addAccount(Account anAcct) {
+		// TODO Auto-generated method stub
+		this.accounts.add(anAcct);
+	}
+	//Return user's id
+	public String getUUID() {
+		return this.uuid;
+	}
+	
+	
+	//check if the pin is correct or not
+	public boolean validatePin(String aPin) {
+		
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			return MessageDigest.isEqual(md.digest(aPin.getBytes()), this.pinHash);
+		} catch (NoSuchAlgorithmException e) {
+			System.out.print("error caught NosuchAlgo Exception");
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		return false;
+		
+	}
+	
+	public String getFirstName() {
+		return this.firstName;
+	}
+	
+	public void printAccountsSummary() {
+		
+		System.out.printf("\n\n%s account's summary\n  ", this.firstName);
+		for(int a = 0; a<this.accounts.size(); a++) {
+			System.out.printf("%d) %s\n", a+1,this.accounts.get(a).getSummaryLine());
+		}
+		System.out.println();
+	}
+	public int numAccounts() {
+		return this.accounts.size();
+	}
+	
+	public void printAccntTransHistory(int acctIdx) {
+		this.accounts.get(acctIdx).printTransHistory();
+	}
+	
+	public double getAcctBalance(int acctIdx) {
+		return this.accounts.get(acctIdx).getBalance();
+	}
+	public String getAcctUUID(int acctIdx) {
+		return this.accounts.get(acctIdx).getUUID();
+	}
+	
+	public void addAcctTransaction(int acctIdx, double amount, String memo) {
+		this.accounts.get(acctIdx).addTransaction(amount, memo); 
+	}
+	
+}
